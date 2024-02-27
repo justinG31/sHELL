@@ -38,6 +38,7 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     return NULL;
   }
   // // your answer here
+  Sleep((DWORD) argv[1]);
   return (LPVOID)1;
 }
 
