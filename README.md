@@ -1,5 +1,7 @@
-# sHELL
-a hellish way to  build a simple shell. 
+# sHELL Progress
+- Exit
+
+
 
 ## Basics
 This is a teaching shell used to help students incramentally build out functionality for their final project 
