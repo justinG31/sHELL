@@ -1,3 +1,13 @@
+ifeq ($(OS),Windows_NT)
+    RM := del /Q
+    MKDIR := mkdir
+    DIR_SEP := \\
+else
+    RM := rm -f
+    MKDIR := mkdir -p
+    DIR_SEP := /
+endif
+
 .PHONY: all
 
 # Shell command to list all directories except those named 'include'

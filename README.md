@@ -1,6 +1,7 @@
 # sHELL Progress
 - Exit
 - Sleep
+- Download 
 
 
 ## Basics

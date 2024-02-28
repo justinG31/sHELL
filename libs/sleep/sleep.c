@@ -38,8 +38,8 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     return NULL;
   }
   // // your answer here
-  Sleep((DWORD) argv[1]);
-  return (LPVOID)1;
+  Sleep((DWORD)StrToIntA(argv[1]));
+  return 0;
 }
 
 // Entrypoint for the DLL

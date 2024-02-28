@@ -11,7 +11,7 @@ test.exe:
 	$(CC) test.c -static -o test.exe
 
 dist: echo.dll 
-	cp echo.dll ../../dist/
+	cp echo.dll ..\..\dist\
 
 clean:
 	-rm *.exe 
