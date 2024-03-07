@@ -35,20 +35,17 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
   if(argc != 2){
-    core->wprintf(L"Usage: help command");
+    core->wprintf(L"Invalid Arguments \n%s", CommandHelpA());
   }
   const char *command = (const char*) argv[1];
   // // your answer here
-  debug_wprintf(L"mod count is %d\n", core-gModuleCount);
-  for(int i=0; i<core->gModuleCount; i++){
-    /* check if argv[1] == command*/
-    debug_wprintf(L"commandname is %S\n", core->gaCommandsA[i].fnName);
-    if((const char)core->gaCommandsA[i].fnName == command){
-      debug_wprintf(L"command is a match %S : %S \n", core->gaCommandsA[i].fnName, command);
+  //debug_wprintf(L"command is  %S\n", command);
+  for(int i=0; i< *(core->gModuleCount); i++){
+    //debug_wprintf(L"commandname is %S\n", core->gaCommandsA[i].fnName());
+    if(core->strcmp(core->gaCommandsA[i].fnName(), command) == 0){
+      //debug_wprintf(L"command is a match %S : %S \n", core->gaCommandsA[i].fnName(), command);
       /*print help*/
-      debug_wprintf(L"printhing help below\n");
-      //core->gaCommandsA[i].fnHelp;
-      core->wprintf(L"%S\n", core->gaCommandsA[i].fnHelp);
+      core->wprintf(L"%S\n", core->gaCommandsA[i].fnHelp());
       return lpOut;
     }
   }

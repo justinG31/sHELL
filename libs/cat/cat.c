@@ -14,7 +14,7 @@ const char Help[] = "Concatenate and print files to the standard output.\n"
 // declue dependenceies
 // always ensure null terminated
 // this command depends on readf
-
+#define BUFFER_SIZE 4096
 #define INDEX_cat_readf 0
 
 // note that order of dependencies matters
@@ -79,7 +79,24 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
 
   LPVOID readfOut = NULL;
   // // your answer here
-  return readfOut;
+  HANDLE hFile = CreateFileA(argv[1], GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if (hFile == INVALID_HANDLE_VALUE) {
+        debug_wprintf(L"Error opening file. Error code: %lu\n", GetLastError());
+        return readfOut;
+    }
+    
+    CHAR buffer[BUFFER_SIZE];
+    DWORD bytesRead;
+
+    while (ReadFile(hFile, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
+        WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), buffer, bytesRead, NULL, NULL);
+        debug_wprintf(L"In readfile loop \n");
+        //core->WriteStdOut(buffer, bytesRead);
+    }
+
+  CloseHandle(hFile);
+  return (LPVOID)1;
 }
 
 // Entrypoint for the DLL

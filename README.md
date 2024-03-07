@@ -2,6 +2,8 @@
 - Exit
 - Sleep
 - Download 
+- Help
+- cd
 
 
 ## Basics
