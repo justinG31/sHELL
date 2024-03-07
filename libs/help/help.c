@@ -34,7 +34,26 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 // Exported function - Run
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
+  if(argc != 2){
+    core->wprintf(L"Usage: help command");
+  }
+  const char *command = (const char*) argv[1];
   // // your answer here
+  debug_wprintf(L"mod count is %d\n", core-gModuleCount);
+  for(int i=0; i<core->gModuleCount; i++){
+    /* check if argv[1] == command*/
+    debug_wprintf(L"commandname is %S\n", core->gaCommandsA[i].fnName);
+    if((const char)core->gaCommandsA[i].fnName == command){
+      debug_wprintf(L"command is a match %S : %S \n", core->gaCommandsA[i].fnName, command);
+      /*print help*/
+      debug_wprintf(L"printhing help below\n");
+      //core->gaCommandsA[i].fnHelp;
+      core->wprintf(L"%S\n", core->gaCommandsA[i].fnHelp);
+      return lpOut;
+    }
+  }
+  debug_wprintf(L"command not found \n");
+  return (LPVOID)1;
 }
 
 // Entrypoint for the DLL

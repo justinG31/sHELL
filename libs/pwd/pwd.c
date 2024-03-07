@@ -40,7 +40,17 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     return 1; // Error code for memory allocation failure
   }
   // // your answer here
-  return lpOut; // Success
+  if(GetCurrentDirectoryA(bufferSize, cwd)!=0){
+    core->wprintf(L"The current directory is %S\n", cwd);
+    core->free(cwd);
+    return lpOut; // Success
+  }
+  else{
+    core->wprintf(L"Failed to get directory because of %lu\n", GetLastError());
+    core->free(cwd);
+    return 1;
+  }
+  
 }
 
 // Entrypoint for the DLL
