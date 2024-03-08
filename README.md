@@ -7,6 +7,7 @@
 - cat 
 - rm (need to fix case if directory is full)
 - b64
+- ls
 
 TODO:
     aesgcm
@@ -14,7 +15,6 @@ TODO:
     exec
     httpcl
     inject
-    ls
     pkill
     ps
     readf
