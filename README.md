@@ -6,10 +6,10 @@
 - cd
 - cat 
 - rm (need to fix case if directory is full)
+- b64
 
 TODO:
     aesgcm
-    b64
     bg
     exec
     httpcl

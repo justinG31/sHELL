@@ -14,7 +14,10 @@ InternalAPI *core = NULL;
 LPVOID lpOut = NULL;
 
 // Initialization code
-__declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { core = lpCore; }
+__declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { 
+  core = lpCore;
+  return TRUE;
+   }
 
 // Exported function - Name
 __declspec(dllexport) const char *CommandNameA() { return Name; }
@@ -35,13 +38,47 @@ BOOL Base64Encode(const char *input, char **output, DWORD *outputSize) {
   // // your answer here
   //get input size
   DWORD inputSize = core->strlen(input);
-  CryptBinaryToStringA((const BYTE*) input, inputSize, CRYPT_STRING_BASE64, (LPSTR)output, outputSize);
+  //calculate buffer size
+  if(!CryptBinaryToStringA((const BYTE*) input, inputSize, CRYPT_STRING_BASE64, NULL, outputSize)){
+    debug_wprintf(L"Error encoding string with error code %lu\n", GetLastError());
+    return FALSE;
+  }
+  /*allocate buffer*/
+  *output = (char*)core->malloc(*outputSize);
+  if(*output == NULL){
+    debug_wprintf(L"Error allocating memory \n");
+    return FALSE;
+  }
+
+  if(!CryptBinaryToStringA((const BYTE*) input, inputSize, CRYPT_STRING_BASE64, *output, outputSize)){
+    debug_wprintf(L"Error encoding string with error code %lu\n", GetLastError());
+    core->free(*output);
+    return FALSE;
+  }
   return TRUE;
 }
 
 // Utility function to decode a base64 string
 BOOL Base64Decode(const char *input, BYTE **output, DWORD *outputSize) {
   // // your answer here
+  DWORD inputSize = core->strlen(input);
+  //calculate buffer size
+  if(!CryptStringToBinaryA((LPCSTR)input, inputSize, CRYPT_STRING_BASE64, NULL, outputSize, NULL, NULL)){
+    debug_wprintf(L"Error decodin string with error code %lu\n", GetLastError());
+    return FALSE;
+  }
+
+  *output = (BYTE*)core->malloc(*outputSize);
+  if(*output == NULL){
+    debug_wprintf(L"Error allocating memory\n");
+    return FALSE;
+  }
+
+  if(!CryptStringToBinaryA((LPCSTR)input, inputSize, CRYPT_STRING_BASE64, *output, outputSize, NULL, NULL)){
+    debug_wprintf(L"Error decoding string with error code %lu\n", GetLastError());
+    core->free(*output);
+    return FALSE;
+  }
   return TRUE;
 }
 
