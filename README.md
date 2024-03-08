@@ -4,6 +4,25 @@
 - Download 
 - Help
 - cd
+- cat 
+- rm (need to fix case if directory is full)
+
+TODO:
+    aesgcm
+    b64
+    bg
+    exec
+    httpcl
+    inject
+    ls
+    pkill
+    ps
+    readf
+    rloader
+    schtasks
+    sha256sum
+    upload
+
 
 
 ## Basics

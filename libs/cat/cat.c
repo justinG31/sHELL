@@ -14,7 +14,7 @@ const char Help[] = "Concatenate and print files to the standard output.\n"
 // declue dependenceies
 // always ensure null terminated
 // this command depends on readf
-#define BUFFER_SIZE 4096
+
 #define INDEX_cat_readf 0
 
 // note that order of dependencies matters
@@ -78,24 +78,45 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   }
 
   LPVOID readfOut = NULL;
+  size_t totalSize = 0;
+  char* bufferPtr = NULL;
   // // your answer here
-  HANDLE hFile = CreateFileA(argv[1], GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  //traverse through all files given
+  for(int i = 1; i< argc; i++){
+    HANDLE hFile = CreateFileA(argv[i], GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (hFile == INVALID_HANDLE_VALUE) {
         debug_wprintf(L"Error opening file. Error code: %lu\n", GetLastError());
-        return readfOut;
+        return lpOut;
     }
-    
-    CHAR buffer[BUFFER_SIZE];
+      
+    DWORD fileSize = GetFileSize(hFile, NULL);
+    LPVOID partialBuffer = core->realloc(readfOut, totalSize + fileSize);
+    if (partialBuffer == NULL) {
+    CloseHandle(hFile);
+    debug_wprintf(L"Error allocating memory for file content.\n");
+    return lpOut;
+    }
+
+    //update buffer ptr and buffer
+    bufferPtr = (char*)partialBuffer + totalSize;
+    readfOut = partialBuffer;
+
     DWORD bytesRead;
-
-    while (ReadFile(hFile, buffer, BUFFER_SIZE, &bytesRead, NULL) && bytesRead > 0) {
-        WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), buffer, bytesRead, NULL, NULL);
-        debug_wprintf(L"In readfile loop \n");
-        //core->WriteStdOut(buffer, bytesRead);
+    if(ReadFile(hFile, bufferPtr, fileSize, &bytesRead, NULL) == 0) {
+        debug_wprintf(L"Error Reading File:  %lu\n", GetLastError());
+        core->free(readfOut);
+        CloseHandle(hFile);
+        return lpOut;   
     }
 
-  CloseHandle(hFile);
+    //update size
+    totalSize += bytesRead;
+    CloseHandle(hFile);
+    
+  }
+  core->WriteStdOut(readfOut, totalSize);
+  core->free(readfOut);
   return (LPVOID)1;
 }
 

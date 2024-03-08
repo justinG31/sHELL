@@ -16,8 +16,13 @@ __declspec(dllexport) VOID CommandCleanup() {
     lpOut = NULL;
   }
 }
+
+
 // initialization code
-__declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { core = lpCore; }
+__declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { 
+  core = lpCore;
+  return TRUE;
+   }
 
 // Exported function - Name
 __declspec(dllexport) const char *CommandNameA() { return Name; }
@@ -28,8 +33,37 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 // Exported function - Run
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
-  core->wprintf(L"I am so modular!\n");
-  return 0;
+  if(argc < 2){
+    core->wprintf(L"%s\n", CommandHelpA());
+    return lpOut;
+  }
+
+  //get attributes
+  DWORD dwAttributes = GetFileAttributesA(argv[1]);
+  if(dwAttributes == INVALID_FILE_ATTRIBUTES){
+    debug_wprintf(L"Error getting file attributes: %lu\n", GetLastError());
+    return lpOut;
+  }
+  debug_wprintf(L"File attributes is %d\n", dwAttributes);
+  if (dwAttributes == FILE_ATTRIBUTE_DIRECTORY) {
+        if(RemoveDirectoryA(argv[1]) != 0){
+          core->wprintf(L"Directory %S removed successfully \n", argv[1]);
+        }
+        else{
+          debug_wprintf(L"Error removing directory %S. with error %lu\n", argv[1], GetLastError());
+          return lpOut;
+        }
+    }
+  else{
+    if(DeleteFileA(argv[1]) != 0){
+      core->wprintf(L"File %S removed successfully \n", argv[1]);
+    }
+    else {
+      debug_wprintf(L"Error removing file  %S. with error %lu\n", argv[1], GetLastError());
+      return lpOut;
+    }
+  }
+  return (LPVOID)1; //success
 }
 
 // Entrypoint for the DLL

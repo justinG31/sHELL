@@ -33,6 +33,9 @@ __declspec(dllexport) VOID CommandCleanup() {
 // Utility function to encode a string to base64
 BOOL Base64Encode(const char *input, char **output, DWORD *outputSize) {
   // // your answer here
+  //get input size
+  DWORD inputSize = core->strlen(input);
+  CryptBinaryToStringA((const BYTE*) input, inputSize, CRYPT_STRING_BASE64, (LPSTR)output, outputSize);
   return TRUE;
 }
 
