@@ -1,6 +1,8 @@
 #include "api.h"
 #include "errhandlingapi.h"
 #include "winnt.h"
+#include "loader.h"
+#include "GetProcAddressR.h"
 
 HANDLE hStdOut;
 HANDLE hStdErr;
@@ -22,12 +24,24 @@ t_sprintf *sprintf = NULL;
 
 BOOL WINAPI AddModuleA(char *lpszFilePath) {
   debug_wprintf(L"Entering AddModuleA\n");
-  HMODULE hModule = LoadLibraryA(lpszFilePath);
+  DWORD dwFileSize = 0;
+  BYTE *lpFileBytes = LoadFileBytes(lpszFilePath, &dwFileSize);
+  if (lpFileBytes == NULL) {
+    debug_wprintf(L"Failed to load file in Add ModuleA!\n");
+    return FALSE;
+  }
+  
+  debug_wprintf(L"past Load file bytes\n");
+ 
+  HMODULE hModule = LoadPe(lpFileBytes, dwFileSize);
+  //HMODULE hModule = LoadLibraryA(lpszFilePath);
+  /*
+  
   if (hModule == NULL) {
     wprintf(L"Failed to load %S", lpszFilePath);
     return FALSE;
   }
-
+  */
   debug_wprintf(L"[+] Library %S found %p\n", lpszFilePath, (void *)hModule);
   ZeroMemory(&gaCommandsA[gModuleCount], sizeof(CommandA));
 
@@ -35,14 +49,15 @@ BOOL WINAPI AddModuleA(char *lpszFilePath) {
   // @TODO Lock array
 
   FARPROC lpF = NULL;
-  lpF = GetProcAddress(hModule, gszName);
+  lpF = GetProcAddressR(hModule, gszName);
+  //lpF = GetProcAddress(hModule, gszName)
   if (lpF == NULL) {
     wprintf(L"Missing Function %S!%S: %d\n", lpszFilePath, gszName,
             GetLastError());
     goto cleanup;
   }
   gaCommandsA[gModuleCount].fnName = (fnCommandNameA *)lpF;
-  lpF = GetProcAddress(hModule, gszHelp);
+  lpF = GetProcAddressR(hModule, gszHelp);
   if (lpF == NULL) {
     wprintf(L"Missing Function %S\n", gszHelp);
     goto cleanup;
@@ -50,7 +65,7 @@ BOOL WINAPI AddModuleA(char *lpszFilePath) {
 
   gaCommandsA[gModuleCount].fnHelp = (fnCommandHelpA *)lpF;
   // Run
-  lpF = GetProcAddress(hModule, gszRun);
+  lpF = GetProcAddressR(hModule, gszRun);
   if (lpF == NULL) {
     wprintf(L"Missing Function %S\n", gszRun);
     goto cleanup;
@@ -58,14 +73,14 @@ BOOL WINAPI AddModuleA(char *lpszFilePath) {
 
   gaCommandsA[gModuleCount].fnRun = (fnCommandRunA *)lpF;
 
-  lpF = GetProcAddress(hModule, gszCleanup);
+  lpF = GetProcAddressR(hModule, gszCleanup);
   if (lpF == NULL) {
     wprintf(L"Missing Function %S\n", gszCleanup);
     goto cleanup;
   }
 
   gaCommandsA[gModuleCount].fnCleanup = (fnCommandCleanup *)lpF;
-  lpF = GetProcAddress(hModule, gszInit);
+  lpF = GetProcAddressR(hModule, gszInit);
   if (lpF == NULL) {
     wprintf(L"Missing Function %S\n", gszRun);
     goto cleanup;
@@ -95,7 +110,7 @@ BOOL ResolveCommandDependencies(CommandDependency deps[]) {
   // deps is a null terminated array
   // O(n^2) dummy resolver
   debug_wprintf(L"[+] Resolving Dependencies...\n");
-  for (int i = 0; deps[i].hash + deps[i].lpCmd != 0; i++) {
+  for (int i = 0; deps[i].hash!= 0 && deps[i].lpCmd != NULL; i++) {
     // dumb linear search for cmd
     for (int j = 0; j < gModuleCount; j++) {
       if (gaCommandsA[j].hash == deps[i].hash) {

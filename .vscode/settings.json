@@ -1,0 +1,7 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "windows.h": "c",
+        "string.h": "c"
+    }
+}
